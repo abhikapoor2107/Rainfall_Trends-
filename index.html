@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rainfall Trends and Variability Analyzer</title>
+  <meta
+    name="description"
+    content="Professional rainfall dashboard for climate variability analysis, category exploration, country trends, and live weather forecasting."
+  >
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+    rel="stylesheet"
+  >
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-loader" id="pageLoader">
+    <div class="loader-orb"></div>
+    <p>Loading rainfall intelligence...</p>
+  </div>
+
+  <div class="rain-overlay" id="rainOverlay" aria-hidden="true"></div>
+
+  <div class="top-link-bar">
+    <span>For more information click the link</span>
+    <a href="https://www.instagram.com/reel/DWej2ITDwIF/?igsh=ZGI2ZmxqY3NyNWtl" target="_blank" rel="noopener noreferrer">Open reel</a>
+  </div>
+
+  <nav class="navbar">
+    <a href="#home" class="brand">
+      <span class="brand-mark">RA</span>
+      <span>Rainfall Trends and Variability Analyzer</span>
+    </a>
+
+    <div class="nav-actions">
+      <div class="nav-links">
+        <a href="#analysis">Analysis</a>
+        <a href="#explorer">Explorer</a>
+        <a href="#countries">Countries</a>
+        <a href="#weather">Live Weather</a>
+      </div>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme">
+        <span class="theme-toggle__sun">Light</span>
+        <span class="theme-toggle__moon">Dark</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero section-shell" id="home">
+      <div class="hero__content" data-reveal>
+        <div class="eyebrow">Climate Intelligence Dashboard</div>
+        <h1>Visualize rainfall variability with research-grade clarity.</h1>
+        <p>
+          Explore rainfall patterns across biomes, continents, and countries. Compare seasonal
+          shifts, variability indicators, and live weather conditions in one modern analytics
+          experience.
+        </p>
+
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#analysis">Start analysis</a>
+          <a class="btn btn--secondary" href="#weather">Check live weather</a>
+        </div>
+
+        <div class="hero__stats">
+          <article class="metric-card">
+            <div class="metric-icon">CT</div>
+            <strong id="heroCountries">12</strong>
+            <span>Countries in dataset</span>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">BM</div>
+            <strong id="heroBiomes">5</strong>
+            <span>Biome categories</span>
+          </article>
+          <article class="metric-card">
+            <div class="metric-icon">CV</div>
+            <strong id="heroCv">0.39</strong>
+            <span>Average variability index</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="hero__visual glass-card" data-reveal>
+        <div class="visual-header">
+          <span>Rainfall outlook snapshot</span>
+          <span class="badge">Live + modeled</span>
+        </div>
+        <div class="mini-grid">
+          <article>
+            <span>Peak wet season</span>
+            <strong id="heroWetSeason">Monsoon</strong>
+          </article>
+          <article>
+            <span>Highest sample rainfall</span>
+            <strong id="heroWettest">3,150 mm</strong>
+          </article>
+          <article>
+            <span>Lowest sample rainfall</span>
+            <strong id="heroDriest">110 mm</strong>
+          </article>
+          <article>
+            <span>Forecast engine</span>
+            <strong>Open-Meteo</strong>
+          </article>
+        </div>
+        <div class="hero-wave"></div>
+      </div>
+    </section>
+
+    <section class="section-shell" id="analysis">
+      <div class="section-heading" data-reveal>
+        <div class="eyebrow">Data & Analysis</div>
+        <h2>Trend, seasonality, and variability in one view</h2>
+        <p>
+          The dashboard combines yearly trends, monthly rainfall distribution, and coefficient of
+          variation based indicators to show how rainfall changes over time and across seasons.
+        </p>
+      </div>
+
+      <div class="insight-grid" data-reveal>
+        <article class="glass-card insight-card">
+          <span>Average annual rainfall</span>
+          <strong id="avgAnnualRainfall">0 mm</strong>
+          <p>Computed from the active country list and used as a baseline indicator.</p>
+        </article>
+        <article class="glass-card insight-card">
+          <span>Dominant seasonal pattern</span>
+          <strong id="dominantSeason">-</strong>
+          <p>Highlights the season receiving the highest modeled rainfall share.</p>
+        </article>
+        <article class="glass-card insight-card">
+          <span>Coefficient of variation</span>
+          <strong id="globalCv">0.00</strong>
+          <p>Shows rainfall volatility; higher values indicate stronger variability.</p>
+        </article>
+      </div>
+
+      <div class="chart-grid">
+        <article class="glass-card chart-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3>Yearly Rainfall Trend</h3>
+              <p>Modeled average annual rainfall across the sample dataset.</p>
+            </div>
+            <span class="source-chip">Modeled series</span>
+          </div>
+          <canvas id="yearlyChart"></canvas>
+        </article>
+
+        <article class="glass-card chart-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3>Monthly Rainfall Distribution</h3>
+              <p>Average monthly rainfall used to compare dry and wet periods.</p>
+            </div>
+            <span class="source-chip">Monthly climatology</span>
+          </div>
+          <canvas id="monthlyChart"></canvas>
+        </article>
+
+        <article class="glass-card chart-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3>Seasonal Variability</h3>
+              <p>Seasonal rainfall totals reveal concentration and monsoon dominance.</p>
+            </div>
+            <span class="source-chip">Seasonal totals</span>
+          </div>
+          <canvas id="seasonalChart"></canvas>
+        </article>
+
+        <article class="glass-card chart-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3>Variability Indicator</h3>
+              <p>Coefficient of variation for selected rainfall profiles.</p>
+            </div>
+            <span class="source-chip">Risk index</span>
+          </div>
+          <canvas id="variabilityChart"></canvas>
+        </article>
+      </div>
+
+      <p class="data-note" data-reveal>
+        Data note: long-term rainfall visuals use curated sample climate datasets for demonstration,
+        while the live weather module uses real-time Open-Meteo forecast data.
+      </p>
+    </section>
+
+    <section class="section-shell" id="explorer">
+      <div class="section-heading" data-reveal>
+        <div class="eyebrow">Multi-category System</div>
+        <h2>Explore rainfall by biome and continent</h2>
+        <p>
+          Click a biome or continent to update explanations, sample imagery, and rainfall charts.
+          This helps compare ecosystems and regional climate signatures side by side.
+        </p>
+      </div>
+
+      <div class="category-layout">
+        <aside class="glass-card category-panel" data-reveal>
+          <div class="category-block">
+            <h3>Biomes</h3>
+            <div class="pill-grid" id="biomeButtons"></div>
+          </div>
+          <div class="category-block">
+            <h3>Continents</h3>
+            <div class="pill-grid" id="continentButtons"></div>
+          </div>
+        </aside>
+
+        <article class="glass-card detail-panel" data-reveal>
+          <div class="detail-panel__media">
+            <img id="categoryImage" src="" alt="Climate category visual">
+          </div>
+          <div class="detail-panel__body">
+            <div class="detail-meta">
+              <span class="badge" id="categoryType">Biome</span>
+              <span id="categoryHighlight">Rainfall profile</span>
+            </div>
+            <h3 id="categoryTitle">Tropical Rainforest</h3>
+            <p id="categoryDescription"></p>
+            <div class="detail-facts" id="categoryFacts"></div>
+            <div class="mini-chart-wrap">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell" id="countries">
+      <div class="section-heading" data-reveal>
+        <div class="eyebrow">Country Rainfall Info Box</div>
+        <h2>Search countries and inspect rainfall patterns instantly</h2>
+        <p>
+          Use the live search bar or dropdown selector to filter the dataset. Each country card
+          summarizes annual rainfall, seasonal pattern, and a focused rainfall trend chart.
+        </p>
+      </div>
+
+      <div class="country-controls glass-card" data-reveal>
+        <label class="search-field">
+          <span>Live country search</span>
+          <input id="countrySearch" type="search" placeholder="Search country..." autocomplete="off">
+        </label>
+
+        <label class="search-field">
+          <span>Quick select</span>
+          <select id="countrySelect"></select>
+        </label>
+      </div>
+
+      <div class="country-layout">
+        <div class="country-results glass-card" data-reveal>
+          <div class="results-header">
+            <h3>Matching countries</h3>
+            <span id="countryCount">0 results</span>
+          </div>
+          <div class="country-list" id="countryList"></div>
+        </div>
+
+        <article class="country-info glass-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3 id="countryTitle">India</h3>
+              <p id="countryPattern">Monsoonal rainfall with a strong summer peak.</p>
+            </div>
+            <span class="badge" id="countryBadge">Asia</span>
+          </div>
+
+          <div class="country-summary">
+            <article>
+              <div class="metric-icon">RF</div>
+              <span>Average rainfall</span>
+              <strong id="countryRainfall">1,083 mm</strong>
+            </article>
+            <article>
+              <div class="metric-icon">WS</div>
+              <span>Wettest season</span>
+              <strong id="countrySeason">Summer</strong>
+            </article>
+            <article>
+              <div class="metric-icon">VR</div>
+              <span>Variability (CV)</span>
+              <strong id="countryCv">0.00</strong>
+            </article>
+          </div>
+
+          <div class="country-image">
+            <img id="countryImage" src="" alt="Country climate visual">
+          </div>
+
+          <div class="country-chart-wrap">
+            <canvas id="countryChart"></canvas>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell" id="weather">
+      <div class="section-heading" data-reveal>
+        <div class="eyebrow">Live Weather + Rain Predictor</div>
+        <h2>Forecast current weather and estimate rain probability</h2>
+        <p>
+          Search for a city to fetch live temperature, humidity, cloud cover, and precipitation
+          probability. A simple prediction model combines atmospheric moisture and cloudiness into a
+          rainfall likelihood estimate.
+        </p>
+      </div>
+
+      <div class="weather-layout">
+        <article class="glass-card weather-search-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3>Forecast search</h3>
+              <p>Powered by Open-Meteo geocoding and forecast endpoints.</p>
+            </div>
+            <span class="source-chip">Live API</span>
+          </div>
+
+          <div class="weather-controls">
+            <label class="search-field weather-input">
+              <span>Search city</span>
+              <input id="weatherSearch" type="search" placeholder="Try Mumbai, Nairobi, Tokyo...">
+            </label>
+            <button class="btn btn--primary" id="weatherSearchBtn" type="button">Fetch weather</button>
+            <button class="btn btn--secondary" id="geoWeatherBtn" type="button">Use my location</button>
+          </div>
+
+          <div class="weather-loading" id="weatherLoading" hidden>
+            <div class="spinner"></div>
+            <span>Fetching live forecast...</span>
+          </div>
+
+          <div class="weather-error" id="weatherError" hidden></div>
+        </article>
+
+        <article class="glass-card weather-result-card" data-reveal>
+          <div class="card-header">
+            <div>
+              <h3 id="weatherLocation">Awaiting forecast</h3>
+              <p id="weatherCondition">Search a city or use location access to load live weather.</p>
+            </div>
+            <span class="badge" id="weatherStatus">Ready</span>
+          </div>
+
+          <div class="weather-metrics">
+            <article>
+              <div class="metric-icon">TP</div>
+              <span>Temperature</span>
+              <strong id="weatherTemp">--</strong>
+            </article>
+            <article>
+              <div class="metric-icon">HM</div>
+              <span>Humidity</span>
+              <strong id="weatherHumidity">--</strong>
+            </article>
+            <article>
+              <div class="metric-icon">CL</div>
+              <span>Cloud cover</span>
+              <strong id="weatherClouds">--</strong>
+            </article>
+            <article>
+              <div class="metric-icon">RP</div>
+              <span>Rain probability</span>
+              <strong id="weatherRainProbability">--</strong>
+            </article>
+          </div>
+
+          <div class="predictor-panel">
+            <div class="predictor-labels">
+              <span>Estimated rainfall chance</span>
+              <strong id="predictorScore">0%</strong>
+            </div>
+            <div class="predictor-bar">
+              <div id="predictorFill"></div>
+            </div>
+            <p id="predictorMessage">The prediction model updates after weather data is fetched.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-footer__grid">
+      <div>
+        <p class="footer-kicker">Project Summary</p>
+        <h3>Rainfall Trends and Variability Analyzer</h3>
+        <p>
+          Built to compare rainfall patterns, visualize variability, and connect long-term climate
+          behavior with live atmospheric conditions in a professional dashboard format.
+        </p>
+      </div>
+      <div>
+        <p class="footer-kicker">Core Stack</p>
+        <p>HTML, CSS, JavaScript, Chart.js, Fetch API, Open-Meteo</p>
+        <p class="footer-muted">Optimized for desktop and mobile presentation.</p>
+      </div>
+      <div>
+        <p class="footer-kicker">Highlights</p>
+        <p>Biome and continent explorer, live country search, interactive charts, weather forecast, and rainfall effect trigger.</p>
+      </div>
+    </div>
+  </footer>
+
+  <button class="rain-trigger" id="rainTriggerBtn" type="button" aria-label="Trigger rain animation">Rain</button>
+  <button class="scroll-top" id="scrollTopBtn" type="button" aria-label="Scroll to top">Top</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
